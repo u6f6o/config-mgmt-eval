@@ -1,0 +1,19 @@
+server1:
+  image: progrium/consul
+  command: -server -bootstrap-expect 3  
+  ports:
+   - "8501:8500"
+server2:
+  command: -server -join server1
+  image: progrium/consul
+  links: 
+   - server1
+  ports:
+   - "8502:8500"
+server3:
+  command: -server -join server2
+  image: progrium/consul
+  links: 
+   - server2
+  ports:
+   - "8503:8500"
