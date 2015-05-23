@@ -8,7 +8,12 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ConfigurationMap extends ReadOnlyMap {
+/**
+ * TODO: add timeout also for config update
+ * TODO: proper error handling
+ * TODO: logging
+ */
+public class AutoRefreshingConfigMap extends ReadOnlyMap {
     private static final long MAX_STARTUP_TIME = 1; // minute
     private static final long REFRESH_PERIOD = 1; // minute
 
@@ -19,14 +24,14 @@ public class ConfigurationMap extends ReadOnlyMap {
     private volatile ImmutableMap<String, String> propsCache;
 
 
-    private ConfigurationMap(ConfigFetcher configFetcher) {
+    private AutoRefreshingConfigMap(ConfigFetcher configFetcher) {
         this.configFetcher = configFetcher;
         this.canRefresh = new AtomicBoolean(true);
         this.refreshExecutor = Executors.newSingleThreadScheduledExecutor();
     }
 
-    public static ConfigurationMap newConsulCatalogue(ConfigFetcher configFetcher) {
-        ConfigurationMap result = new ConfigurationMap(configFetcher);
+    public static AutoRefreshingConfigMap newConsulCatalogue(ConfigFetcher configFetcher) {
+        AutoRefreshingConfigMap result = new AutoRefreshingConfigMap(configFetcher);
         result.initializeConfig();
         result.scheduleConfigRefresh();
         return result;
@@ -53,6 +58,7 @@ public class ConfigurationMap extends ReadOnlyMap {
             propsCache = ImmutableMap.copyOf(freshConfig);
         } catch (TimeoutException e) {
             future.cancel(true);
+            throw new IllegalStateException("Properties initialization failed, because of timeout", e);
         } catch (Exception e) {
             throw new IllegalStateException("Properties initialization failed, aborting.", e);
         } finally {
