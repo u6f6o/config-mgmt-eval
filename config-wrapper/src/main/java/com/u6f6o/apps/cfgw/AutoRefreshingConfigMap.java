@@ -1,6 +1,7 @@
 package com.u6f6o.apps.cfgw;
 
 import com.google.common.collect.ImmutableMap;
+import com.u6f6o.apps.cfgw.provider.ConfigFetcher;
 
 import java.util.Collection;
 import java.util.Map;
@@ -9,13 +10,14 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * TODO: consider using FutureTask
  * TODO: add timeout also for config update
  * TODO: proper error handling
  * TODO: logging
  */
 public class AutoRefreshingConfigMap extends ReadOnlyMap {
-    private static final long MAX_STARTUP_TIME = 1; // minute
-    private static final long REFRESH_PERIOD = 1; // minute
+    private static final long MAX_STARTUP_TIME = 10; // sec
+    private static final long REFRESH_PERIOD = 10; // sec
 
     private final ConfigFetcher configFetcher;
     private final AtomicBoolean canRefresh;
@@ -54,7 +56,7 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
         });
 
         try {
-            Map<String, String> freshConfig = future.get(MAX_STARTUP_TIME, TimeUnit.MINUTES);
+            Map<String, String> freshConfig = future.get(MAX_STARTUP_TIME, TimeUnit.SECONDS);
             propsCache = ImmutableMap.copyOf(freshConfig);
         } catch (TimeoutException e) {
             future.cancel(true);
@@ -91,7 +93,7 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
                     }
                 }
             }
-        }, REFRESH_PERIOD, REFRESH_PERIOD, TimeUnit.MINUTES);
+        }, REFRESH_PERIOD, REFRESH_PERIOD, TimeUnit.SECONDS);
     }
 
 

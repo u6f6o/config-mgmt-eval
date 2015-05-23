@@ -1,5 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'application'
+
+mainClassName = 'com.u6f6o.apps.cfgw.startup.Flansch'
 
 repositories {
 	mavenCentral()
@@ -7,7 +10,7 @@ repositories {
 
 dependencies {
     compile 'com.google.guava:guava:18.0'
-
+    compile 'com.mashape.unirest:unirest-java:1.4.5'
 }
 
 task wrapper(type: Wrapper) {

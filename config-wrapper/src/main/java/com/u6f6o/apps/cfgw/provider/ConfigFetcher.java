@@ -1,4 +1,4 @@
-package com.u6f6o.apps.cfgw;
+package com.u6f6o.apps.cfgw.provider;
 
 import java.util.Map;
 
