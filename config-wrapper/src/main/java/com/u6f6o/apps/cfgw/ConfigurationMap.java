@@ -32,6 +32,7 @@ public class ConfigurationMap extends ReadOnlyMap {
         return result;
     }
 
+
     /**
      * Supposed to be run during application startup. MAX_STARTUP_TIME indicates how long to
      * wait for the configuration to be loaded.
