@@ -11,6 +11,10 @@ public class TimeSpan {
         this.time = time;
     }
 
+    public static TimeSpan millis (long time) {
+        return new TimeSpan(TimeUnit.MILLISECONDS, time);
+    }
+
     public static TimeSpan seconds(long time) {
         return new TimeSpan(TimeUnit.SECONDS, time);
     }
