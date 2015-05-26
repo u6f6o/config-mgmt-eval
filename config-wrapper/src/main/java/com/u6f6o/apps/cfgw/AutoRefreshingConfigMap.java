@@ -14,34 +14,32 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- */
 public class AutoRefreshingConfigMap extends ReadOnlyMap {
     private static final Logger LOGGER = Logger.getLogger(AutoRefreshingConfigMap.class);
 
-    private static final TimeSpan MAX_STARTUP_TIME = TimeSpan.seconds(10);
-    private static final TimeSpan REFRESH_PERIOD = TimeSpan.seconds(10);
+    private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.minutes(1l);
+    private static final TimeSpan DEFAULT_REFRESH_PERIOD = TimeSpan.minutes(1l);
 
+    private final ConfigFetcher configFetcher;
     private final TimeSpan maxStartupTime;
     private final TimeSpan refreshPeriod;
 
-    private final ConfigFetcher configFetcher;
-    private final AtomicBoolean canRefresh;
-    private final ScheduledExecutorService refreshExecutor;
+    private final AtomicBoolean canRefresh = new AtomicBoolean(true);
+    private final ScheduledExecutorService refreshExecutor = Executors.newScheduledThreadPool(2);
 
     private volatile ImmutableMap<String, String> configCache;
 
 
     private AutoRefreshingConfigMap(ConfigFetcher configFetcher) {
-        this(configFetcher, MAX_STARTUP_TIME, REFRESH_PERIOD);
+        this(configFetcher, DEFAULT_MAX_STARTUP_TIME, DEFAULT_REFRESH_PERIOD);
     }
 
-    private AutoRefreshingConfigMap(ConfigFetcher configFetcher, TimeSpan maxStartupTime, TimeSpan refreshPeriod) {
+    private AutoRefreshingConfigMap( ConfigFetcher configFetcher,
+                                     TimeSpan maxStartupTime,
+                                     TimeSpan refreshPeriod) {
         this.configFetcher = configFetcher;
         this.maxStartupTime = maxStartupTime;
         this.refreshPeriod = refreshPeriod;
-        this.canRefresh = new AtomicBoolean(true);
-        this.refreshExecutor = Executors.newScheduledThreadPool(2); // 1 x fetch + 1 x timeout
     }
 
     public static AutoRefreshingConfigMap newConsulCatalogue(ConfigFetcher configFetcher) {
@@ -81,7 +79,7 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
             public void run() {
                 if (canRefresh.compareAndSet(true, false)) {
                     try {
-                        Map<String, String> freshConfig = fetchWithTimeout(refreshPeriod); // TODO WRONG
+                        Map<String, String> freshConfig = fetchWithTimeout(maxStartupTime); 
                         if (!validateConfig(freshConfig)) {
                             throw new IllegalStateException("Cannot refresh configuration, old values are kept!");
                         }
