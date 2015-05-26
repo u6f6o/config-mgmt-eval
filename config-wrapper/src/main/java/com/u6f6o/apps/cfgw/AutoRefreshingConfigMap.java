@@ -64,7 +64,7 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
      * is kept.
      *
      * This method does not throw any exception but logs in case something goes wrong. Failed
-     * refresh of the configuration properties must not harm the runnign application.
+     * refresh of the configuration properties must not harm the running application.
      */
     private void scheduleConfigRefresh() {
         refreshExecutor.scheduleWithFixedDelay(new Runnable() {
