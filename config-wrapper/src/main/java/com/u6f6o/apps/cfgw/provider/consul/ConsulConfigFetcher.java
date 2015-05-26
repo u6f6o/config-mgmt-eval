@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConsulConfigFetcher implements ConfigFetcher {
-    private static final String KEY_VALUE_STORE_URL = "http://192.168.59.103:8501/v1/kv/?recurse";
+    private static final String KEY_VALUE_STORE_URL = "http://localhost:8500/v1/kv/?recurse";
 
     @Override
     public Map<String, String> fetchLatestConfig() {
