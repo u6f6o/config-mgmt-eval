@@ -11,12 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConsulConfigFetcher implements ConfigFetcher {
-    private static final String KEY_VALUE_STORE_URL = "http://localhost:8500/v1/kv/?recurse";
+    private final String consulClientIP;
+
+    public ConsulConfigFetcher(String consulClientIP) {
+        this.consulClientIP = consulClientIP;
+    }
 
     @Override
     public Map<String, String> fetchLatestConfig() {
         try {
-            GetRequest getRequest = Unirest.get(KEY_VALUE_STORE_URL);
+            GetRequest getRequest = Unirest.get("http://" + consulClientIP + ":8500/v1/kv/?recurse");
             JSONArray array = getRequest.asJson().getBody().getArray();
             Map<String, String> result = new HashMap<String, String>((int) Math.ceil(array.length() / 0.75));
 

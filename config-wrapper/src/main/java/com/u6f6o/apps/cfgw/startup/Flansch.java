@@ -11,7 +11,9 @@ import java.util.concurrent.TimeUnit;
 public class Flansch {
 
     public static void main(String[] args) throws InterruptedException {
-        Map<String, String> props = AutoRefreshingConfigMap.newConsulCatalogue(new ConsulConfigFetcher());
+        String consulClientIP = System.getenv("CONSUL_CLIENT_IP");
+        consulClientIP = consulClientIP != null ? consulClientIP : System.getProperty("CONSUL_CLIENT_IP");
+        Map<String, String> props = AutoRefreshingConfigMap.newConsulCatalogue(new ConsulConfigFetcher(consulClientIP));
 
         while(true) {
             try {

@@ -1,28 +1,41 @@
 #!/bin/bash
 
-docker stop consulsrv1 consulsrv2 consulsrv3 consulcli1 consulcli2 >> /dev/null 2>&1
-docker rm consulsrv1 consulsrv2 consulsrv3 consulcli1 consulcli2 >> /dev/null 2>&1
+# stop and remove consul server and client containers
+docker stop srv1 srv2 srv3 cli1 cli2 app1 app2 >> /dev/null 2>&1
+docker rm srv1 srv2 srv3 cli1 cli2 app1 app2 >> /dev/null 2>&1
 
+# rm and recreate final log file
 rm cluster.log 
 touch cluster.log
 
+# recreate local container
+docker build -t app . 
+
 # 1st consul server node
-nohup docker run --name consulsrv1 -h consulsrv1 progrium/consul -server -bootstrap-expect 3 2>&1 | sed -l 's/^/[consul-srv1] /' >> cluster.log &
+nohup docker run --name srv1 -h srv1 progrium/consul -server -bootstrap-expect 3 2>&1 | sed -u 's/^/[consul-srv1] /' >> cluster.log &
 sleep 2
-JOIN_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' consulsrv1)"
+JOIN_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' srv1)"
 
 # 2nd consul server node
-nohup docker run --name consulsrv2 -h consulsrv2 progrium/consul -server -join $JOIN_IP 2>&1 | sed -l 's/^/[consul-srv2] /' >> cluster.log &
+nohup docker run --name srv2 -h srv2 progrium/consul -server -join $JOIN_IP 2>&1 | sed -u 's/^/[consul-srv2] /' >> cluster.log &
 sleep 2
 
 # 3rd consul server node
-nohup docker run --name consulsrv3 -h consulsrv3 progrium/consul -server -join $JOIN_IP 2>&1 | sed -l 's/^/[consul-srv3] /' >> cluster.log &
+nohup docker run --name srv3 -h srv3 progrium/consul -server -join $JOIN_IP 2>&1 | sed -u 's/^/[consul-srv3] /' >> cluster.log &
 sleep 2
 
 # 2 client nodes 
-nohup docker run --name consulcli1 -h consulcli1 progrium/consul -join $JOIN_IP 2>&1 | sed -l 's/^/[consul-cli1] /' >> cluster.log &
-nohup docker run --name consulcli2 -h consulcli2 progrium/consul -join $JOIN_IP 2>&1 | sed -l 's/^/[consul-cli2] /' >> cluster.log &
-sleep2 
+nohup docker run --name cli1 -h cli1 -p 8500:8500 progrium/consul -join $JOIN_IP 2>&1 | sed -u 's/^/[consul-cli1] /' >> cluster.log &
+nohup docker run --name cli2 -h cli2 progrium/consul -join $JOIN_IP 2>&1 | sed -u 's/^/[consul-cli2] /' >> cluster.log &
+sleep 2
 
+CLIENT1_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' cli1)"
+CLIENT2_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' cli2)"
 
+curl -X PUT -d 'Heute ist ein schöner Tag' http://$CLIENT1_IP:8500/v1/kv/web/key1
+curl -X PUT -d 'Morgen nicht!' http://$CLIENT1_IP:8500/v1/kv/web/key2
+curl -X PUT -d 'Wetter soll Scheiße sein' http://$CLIENT1_IP:8500/v1/kv/web/sub/key3
 
+nohup docker run -e "CONSUL_CLIENT_IP=$CLIENT1_IP" --name app1 -h app1 app 2>&1 | sed -u 's/^/[consul-app1] /' >> cluster.log &
+nohup docker run -e "CONSUL_CLIENT_IP=$CLIENT2_IP" --name app2 -h app2 app 2>&1 | sed -u 's/^/[consul-app2] /' >> cluster.log &
+sleep 2
