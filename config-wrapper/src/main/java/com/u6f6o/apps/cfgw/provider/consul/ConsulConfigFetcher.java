@@ -27,7 +27,7 @@ public class ConsulConfigFetcher implements ConfigFetcher {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject jsonObject = array.getJSONObject(i);
                 String key = jsonObject.getString("Key");
-                String val = jsonObject.getString("Value");
+                String val = jsonObject.get("Value") + "";
 
                 result.put(key, val);
             }
