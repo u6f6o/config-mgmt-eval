@@ -31,9 +31,7 @@ sleep 2
 CLIENT1_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' cli1)"
 CLIENT2_IP="$(docker inspect -f '{{.NetworkSettings.IPAddress}}' cli2)"
 
-curl -X PUT -d 'Heute ist ein schöner Tag' http://$CLIENT1_IP:8500/v1/kv/web/key1
-curl -X PUT -d 'Morgen nicht!' http://$CLIENT1_IP:8500/v1/kv/web/key2
-curl -X PUT -d 'Wetter soll Scheiße sein' http://$CLIENT1_IP:8500/v1/kv/web/sub/key3
+curl -X PUT -d 'bar' http://$CLIENT1_IP:8500/v1/kv/app/ps/foo
 
 nohup docker run -e "CONSUL_CLIENT_IP=$CLIENT1_IP" --name app1 -h app1 app 2>&1 | sed -u 's/^/[consul-app1] /' >> cluster.log &
 nohup docker run -e "CONSUL_CLIENT_IP=$CLIENT2_IP" --name app2 -h app2 app 2>&1 | sed -u 's/^/[consul-app2] /' >> cluster.log &

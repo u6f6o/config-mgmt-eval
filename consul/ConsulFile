@@ -1,0 +1,2 @@
+FROM progrium/consul
+RUN ls -la config

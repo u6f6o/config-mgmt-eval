@@ -20,7 +20,7 @@ public class ConsulConfigFetcher implements ConfigFetcher {
     @Override
     public Map<String, String> fetchLatestConfig() {
         try {
-            GetRequest getRequest = Unirest.get("http://" + consulClientIP + ":8500/v1/kv/?recurse");
+            GetRequest getRequest = Unirest.get("http://" + consulClientIP + ":8500/v1/kv/app/ps?recurse");
             JSONArray array = getRequest.asJson().getBody().getArray();
             Map<String, String> result = new HashMap<String, String>((int) Math.ceil(array.length() / 0.75));
 
