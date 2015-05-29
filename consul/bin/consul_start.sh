@@ -44,14 +44,3 @@ curl -X PUT -d 'Wetter soll Scheiße sein' http://$CLIENT1_IP:8500/v1/kv/web/sub
 nohup docker run -e "CONSUL_CLIENT_IP=$CLIENT1_IP" --name app1 -h app1 app 2>&1 | sed -u 's/^/[consul-app1] /' >> /var/tmp/consul_cluster.log &
 nohup docker run -e "CONSUL_CLIENT_IP=$CLIENT2_IP" --name app2 -h app2 app 2>&1 | sed -u 's/^/[consul-app2] /' >> /var/tmp/consul_cluster.log &
 sleep 2
-
-
-# tail -f cluster.log | awk '
-#   /consul-srv1/ {print "\033[31m" $0 "\033[39m"}
-#   /consul-srv2/ {print "\033[32m" $0 "\033[39m"}
-#   /consul-srv3/ {print "\033[33m" $0 "\033[39m"}
-#   /consul-cli1/ {print "\033[34m" $0 "\033[39m"}
-#   /consul-cli2/ {print "\033[35m" $0 "\033[39m"}
-#   /consul-app1/ {print "\033[36m" $0 "\033[39m"}
-#   /consul-app2/ {print "\033[36m" $0 "\033[39m"}
-# '
