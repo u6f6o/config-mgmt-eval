@@ -1,0 +1,4 @@
+FROM netflixoss/exhibitor:1.5.2
+
+ADD config/exhibitor.properties /exhibitor/exhibitor.properties
+
