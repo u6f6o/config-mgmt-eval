@@ -18,15 +18,7 @@ public class Flansch {
         Map<String, String> props = AutoRefreshingConfigMap.newConsulCatalogue(new ConsulConfigFetcher(consulClientIP));
 
         while(true) {
-            try {
-                for (Map.Entry<String, String> entry : props.entrySet()) {
-                    LOGGER.info(entry.getKey() + ": " + StringUtils.newStringUtf8(
-                            Base64.decodeBase64(entry.getValue())));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            TimeUnit.SECONDS.sleep(1);
+
         }
     }
 }
