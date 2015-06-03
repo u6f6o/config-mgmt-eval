@@ -1,8 +1,6 @@
 package com.u6f6o.apps.cfgw;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.u6f6o.apps.cfgw.api.ConfigFetcher;
 import com.u6f6o.apps.cfgw.api.ConfigLogger;
@@ -10,6 +8,7 @@ import com.u6f6o.apps.cfgw.api.ConfigValidator;
 import com.u6f6o.apps.cfgw.api.DefaultConfigLogger;
 import com.u6f6o.apps.cfgw.api.DefaultConfigValidator;
 import com.u6f6o.apps.cfgw.api.ReadOnlyMap;
+import com.u6f6o.apps.cfgw.exception.ApplicationBootstrapError;
 import com.u6f6o.apps.cfgw.util.TimeSpan;
 import org.apache.log4j.Logger;
 
@@ -27,18 +26,19 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
 
     private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.seconds(5l);
     private static final TimeSpan DEFAULT_REFRESH_PERIOD = TimeSpan.seconds(5l);
-
-    private final ConfigFetcher configFetcher;
-    private final ConfigValidator configValidator = new DefaultConfigValidator();
-    private final ConfigLogger configLogger = new DefaultConfigLogger();
-
-    private final TimeSpan maxStartupTime;
-    private final TimeSpan refreshPeriod;
+    private static final Map EMPTY_MAP = Maps.newHashMap();
 
     private final AtomicBoolean canRefresh = new AtomicBoolean(true);
     private final ScheduledExecutorService refreshExecutor = Executors.newScheduledThreadPool(2);
 
-    private volatile ImmutableMap<String, String> configCache;
+    private final ConfigFetcher configFetcher;
+    private final ConfigValidator configValidator = new DefaultConfigValidator();
+    private final ConfigLogger configLogger = new DefaultConfigLogger();
+    private final TimeSpan maxStartupTime;
+    private final TimeSpan refreshPeriod;
+
+    // replaced on update in different thread
+    private volatile ImmutableMap<String, String> cachedConfig;
 
 
     private AutoRefreshingConfigMap(ConfigFetcher configFetcher) {
@@ -65,14 +65,17 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
      * Load initial configuration settings during startup. In case it does not work, the application
      * is supposed to stop immediately!
      *
-     * @throws java.lang.AssertionError in case of timeout or failing validation
+     * @throws com.u6f6o.apps.cfgw.exception.ApplicationBootstrapError in case of timeout or failing validation
      */
     private void initializeConfig() {
-        Map<String, String> freshConfig = fetchWithTimeout(maxStartupTime);
-        if(!validateConfig(freshConfig)) {
-            throw new AssertionError("Application config could not be initially loaded, aborting!");
+        ImmutableMap<String, String> initialConfig = ImmutableMap.copyOf(
+                fetchWithTimeout(maxStartupTime));
+
+        if (!configValidator.isValidateOnInit(initialConfig)) {
+            throw new ApplicationBootstrapError("Initial configuration fetch failed.");
         }
-        publishNewConfig(freshConfig);
+        configLogger.logOnInit(initialConfig);
+        publishNewConfig(initialConfig);
     }
 
 
@@ -90,19 +93,16 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
             public void run() {
                 if (canRefresh.compareAndSet(true, false)) {
                     try {
-                        // TODO looks really ugly
-                        Map<String, String> recentConfig = fetchWithTimeout(maxStartupTime);
-                        if (recentConfig == null) {
-                            throw new IllegalStateException("Received null config, aborting update");
+                        ImmutableMap<String, String> upToDateConfig = ImmutableMap.copyOf(
+                                fetchWithTimeout(maxStartupTime));
+
+                        if (!configValidator.isValidOnUpdate(cachedConfig, upToDateConfig)) {
+                            throw new IllegalStateException("Fetched configuration is invalid.");
                         }
-                        ImmutableMap<String, String> config = ImmutableMap.copyOf(recentConfig);
-                        if (!configValidator.onUpdate(configCache, config)) {
-                            throw new IllegalStateException("Validation failed, aborting update");
-                        }
-                        configLogger.onUpdate(configCache, config);
-                        publishNewConfig(config);
+                        configLogger.logOnUpdate(cachedConfig, upToDateConfig);
+                        publishNewConfig(upToDateConfig);
                     } catch (Exception e) {
-                        LOGGER.error("Cannot refresh configuration, old values are kept!", e);
+                        LOGGER.error("Configuration refresh failed.", e);
                     } finally {
                         canRefresh.set(true);
                     }
@@ -124,56 +124,55 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
             }
         });
         try {
-            Map<String, String> freshConfig = future.get(timeout.getSpan(), timeout.getUnit());
-            return freshConfig;
+            return future.get(timeout.getSpan(), timeout.getUnit());
         } catch (Exception e) {
             LOGGER.info("Unable to fetch configuration", e);
             future.cancel(true);
-            return null;
+            return EMPTY_MAP;
         }
     }
 
     private void publishNewConfig(ImmutableMap<String, String> freshConfig) {
-        configCache = freshConfig;
+        cachedConfig = freshConfig;
     }
 
     @Override
     public int size() {
-        return configCache.size();
+        return cachedConfig.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return configCache.isEmpty();
+        return cachedConfig.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return configCache.containsKey(key);
+        return cachedConfig.containsKey(key);
     }
 
     @Override
     public boolean containsValue(Object value) {
-        return configCache.containsValue(value);
+        return cachedConfig.containsValue(value);
     }
 
     @Override
     public String get(Object key) {
-        return configCache.get(key);
+        return cachedConfig.get(key);
     }
 
     @Override
     public Set<String> keySet() {
-        return configCache.keySet();
+        return cachedConfig.keySet();
     }
 
     @Override
     public Collection<String> values() {
-        return configCache.values();
+        return cachedConfig.values();
     }
 
     @Override
     public Set<Entry<String, String>> entrySet() {
-        return configCache.entrySet();
+        return cachedConfig.entrySet();
     }
 }

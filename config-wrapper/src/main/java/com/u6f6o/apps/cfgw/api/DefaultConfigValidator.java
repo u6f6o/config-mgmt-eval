@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableMap;
 
 public class DefaultConfigValidator implements ConfigValidator {
     @Override
-    public boolean onInit(ImmutableMap<String, String> config) {
+    public boolean isValidateOnInit(ImmutableMap<String, String> initialConfig) {
         return true;
     }
 
     @Override
-    public boolean onUpdate(ImmutableMap<String, String> oldConfig, ImmutableMap<String, String> newConfig) {
+    public boolean isValidOnUpdate(ImmutableMap<String, String> cachedConfig, ImmutableMap<String, String> upToDateConfig) {
         return true;
     }
 }

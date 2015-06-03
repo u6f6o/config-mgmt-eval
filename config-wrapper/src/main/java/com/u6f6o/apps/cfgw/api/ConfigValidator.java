@@ -4,6 +4,6 @@ import com.google.common.collect.ImmutableMap;
 
 
 public interface ConfigValidator {
-    boolean onInit(ImmutableMap<String, String> config);
-    boolean onUpdate(ImmutableMap<String, String> oldConfig, ImmutableMap<String, String> newConfig);
+    boolean isValidateOnInit(ImmutableMap<String, String> initialConfig);
+    boolean isValidOnUpdate(ImmutableMap<String, String> cachedConfig, ImmutableMap<String, String> upToDateConfig);
 }

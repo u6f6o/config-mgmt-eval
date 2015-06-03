@@ -11,11 +11,13 @@ import java.util.Map;
 public class DefaultConfigLogger implements ConfigLogger {
     private static final Logger LOGGER = Logger.getLogger(DefaultConfigLogger.class);
     private static final Joiner JOINER = Joiner.on(",");
+    private static final ImmutableMap<String, String> EMPTY_MAP = ImmutableMap.copyOf(
+            Maps.<String, String>newHashMap());
 
     @Override
-    public void onUpdate(ImmutableMap<String, String> oldConfig, Map<String, String> newConfig) {
-        if (oldConfig != null && newConfig!= null) {
-            MapDifference<String, String> difference = Maps.difference(oldConfig, newConfig);
+    public void logOnUpdate(ImmutableMap<String, String> cachedConfig, Map<String, String> upToDateConfig) {
+        if (cachedConfig != null && upToDateConfig != null) {
+            MapDifference<String, String> difference = Maps.difference(cachedConfig, upToDateConfig);
             if(!difference.areEqual()) {
                 logKeys("Updated keys: ", difference.entriesDiffering());
                 logKeys("Removed keys: ", difference.entriesOnlyOnLeft());
@@ -24,9 +26,14 @@ public class DefaultConfigLogger implements ConfigLogger {
         }
     }
 
-    private void logKeys(String message, Map<?, ?> keyAndValues) {
-        if(!keyAndValues.isEmpty()) {
-            LOGGER.info(message + JOINER.join(keyAndValues.keySet()));
+    @Override
+    public void logOnInit(ImmutableMap<String, String> initialConfig) {
+        logOnUpdate(EMPTY_MAP, initialConfig);
+    }
+
+    private void logKeys(String message, Map<?, ?> config) {
+        if(!config.isEmpty()) {
+            LOGGER.info(message + JOINER.join(config.keySet()));
         }
     }
 }

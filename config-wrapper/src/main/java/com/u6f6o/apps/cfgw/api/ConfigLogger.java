@@ -5,5 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
 public interface ConfigLogger {
-    void onUpdate(ImmutableMap<String, String> oldConfig, Map<String, String> newConfig);
+    void logOnUpdate(ImmutableMap<String, String> cachedConfig, Map<String, String> upToDateConfig);
+    void logOnInit(ImmutableMap<String, String> initialConfig);
 }
