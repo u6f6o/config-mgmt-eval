@@ -1,8 +1,6 @@
-package com.u6f6o.apps.cfgw;
+package com.u6f6o.apps.cfgw.api;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 
 public abstract class ReadOnlyMap implements Map<String, String> {

@@ -1,9 +1,9 @@
 package com.u6f6o.apps.cfgw.provider.consul;
 
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
-import com.u6f6o.apps.cfgw.provider.ConfigFetcher;
+import com.u6f6o.apps.cfgw.api.ConfigFetcher;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConsulConfigFetcher implements ConfigFetcher {
+    private static final Logger LOGGER = Logger.getLogger(ConsulConfigFetcher.class);
+
     private final String consulClientIP;
 
     public ConsulConfigFetcher(String consulClientIP) {
@@ -32,8 +34,8 @@ public class ConsulConfigFetcher implements ConfigFetcher {
                 result.put(key, val);
             }
             return result;
-        } catch (UnirestException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("Exception while fetching configuration.", e);
         }
         return null;
     }

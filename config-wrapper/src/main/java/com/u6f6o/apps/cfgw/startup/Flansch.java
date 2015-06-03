@@ -4,11 +4,13 @@ import com.u6f6o.apps.cfgw.AutoRefreshingConfigMap;
 import com.u6f6o.apps.cfgw.provider.consul.ConsulConfigFetcher;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Flansch {
+    private static final Logger LOGGER = Logger.getLogger(Flansch.class);
 
     public static void main(String[] args) throws InterruptedException {
         String consulClientIP = System.getenv("CONSUL_CLIENT_IP");
@@ -18,13 +20,13 @@ public class Flansch {
         while(true) {
             try {
                 for (Map.Entry<String, String> entry : props.entrySet()) {
-                    System.err.println(entry.getKey() + ": " + StringUtils.newStringUtf8(
+                    LOGGER.info(entry.getKey() + ": " + StringUtils.newStringUtf8(
                             Base64.decodeBase64(entry.getValue())));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            TimeUnit.SECONDS.sleep(20);
+            TimeUnit.SECONDS.sleep(1);
         }
     }
 }

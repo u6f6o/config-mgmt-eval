@@ -1,7 +1,15 @@
 package com.u6f6o.apps.cfgw;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import com.u6f6o.apps.cfgw.provider.ConfigFetcher;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+import com.u6f6o.apps.cfgw.api.ConfigFetcher;
+import com.u6f6o.apps.cfgw.api.ConfigLogger;
+import com.u6f6o.apps.cfgw.api.ConfigValidator;
+import com.u6f6o.apps.cfgw.api.DefaultConfigLogger;
+import com.u6f6o.apps.cfgw.api.DefaultConfigValidator;
+import com.u6f6o.apps.cfgw.api.ReadOnlyMap;
 import com.u6f6o.apps.cfgw.util.TimeSpan;
 import org.apache.log4j.Logger;
 
@@ -17,10 +25,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AutoRefreshingConfigMap extends ReadOnlyMap {
     private static final Logger LOGGER = Logger.getLogger(AutoRefreshingConfigMap.class);
 
-    private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.minutes(1l);
-    private static final TimeSpan DEFAULT_REFRESH_PERIOD = TimeSpan.minutes(1l);
+    private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.seconds(5l);
+    private static final TimeSpan DEFAULT_REFRESH_PERIOD = TimeSpan.seconds(5l);
 
     private final ConfigFetcher configFetcher;
+    private final ConfigValidator configValidator = new DefaultConfigValidator();
+    private final ConfigLogger configLogger = new DefaultConfigLogger();
+
     private final TimeSpan maxStartupTime;
     private final TimeSpan refreshPeriod;
 
@@ -79,11 +90,17 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
             public void run() {
                 if (canRefresh.compareAndSet(true, false)) {
                     try {
-                        Map<String, String> freshConfig = fetchWithTimeout(maxStartupTime); 
-                        if (!validateConfig(freshConfig)) {
-                            throw new IllegalStateException("Cannot refresh configuration, old values are kept!");
+                        // TODO looks really ugly
+                        Map<String, String> recentConfig = fetchWithTimeout(maxStartupTime);
+                        if (recentConfig == null) {
+                            throw new IllegalStateException("Received null config, aborting update");
                         }
-                        publishNewConfig(freshConfig);
+                        ImmutableMap<String, String> config = ImmutableMap.copyOf(recentConfig);
+                        if (!configValidator.onUpdate(configCache, config)) {
+                            throw new IllegalStateException("Validation failed, aborting update");
+                        }
+                        configLogger.onUpdate(configCache, config);
+                        publishNewConfig(config);
                     } catch (Exception e) {
                         LOGGER.error("Cannot refresh configuration, old values are kept!", e);
                     } finally {
@@ -116,13 +133,8 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
         }
     }
 
-    // TODO make hookable
-    private boolean validateConfig(Map<String, String> freshConfig) {
-        return freshConfig != null && freshConfig.size() > 0;
-    }
-
-    private void publishNewConfig(Map<String, String> freshConfig) {
-        configCache = ImmutableMap.copyOf(freshConfig);
+    private void publishNewConfig(ImmutableMap<String, String> freshConfig) {
+        configCache = freshConfig;
     }
 
     @Override

@@ -1,5 +1,5 @@
 package com.u6f6o.apps.cfgw
-import com.u6f6o.apps.cfgw.provider.ConfigFetcher
+import com.u6f6o.apps.cfgw.api.ConfigFetcher
 import com.u6f6o.apps.cfgw.util.TimeSpan
 import spock.lang.Specification
 import spock.lang.Unroll
