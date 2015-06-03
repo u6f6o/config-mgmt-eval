@@ -1,8 +1,9 @@
 package com.u6f6o.apps.cfgw.api;
 
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
 
 
 public interface ConfigValidator {
-    boolean onUpdate(Map<String, String> oldConfig, Map<String, String> newConfig);
+    boolean onInit(ImmutableMap<String, String> config);
+    boolean onUpdate(ImmutableMap<String, String> oldConfig, ImmutableMap<String, String> newConfig);
 }
