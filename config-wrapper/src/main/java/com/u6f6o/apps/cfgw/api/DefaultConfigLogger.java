@@ -6,13 +6,14 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import org.apache.log4j.Logger;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class DefaultConfigLogger implements ConfigLogger {
     private static final Logger LOGGER = Logger.getLogger(DefaultConfigLogger.class);
     private static final Joiner JOINER = Joiner.on(",");
     private static final ImmutableMap<String, String> EMPTY_MAP = ImmutableMap.copyOf(
-            Maps.<String, String>newHashMap());
+            Collections.<String, String>emptyMap());
 
     @Override
     public void logOnUpdate(ImmutableMap<String, String> cachedConfig, Map<String, String> upToDateConfig) {
