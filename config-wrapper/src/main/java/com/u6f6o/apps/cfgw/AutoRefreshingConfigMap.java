@@ -1,7 +1,6 @@
 package com.u6f6o.apps.cfgw;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.u6f6o.apps.cfgw.api.ConfigFetcher;
 import com.u6f6o.apps.cfgw.api.ConfigLogger;
 import com.u6f6o.apps.cfgw.api.ConfigValidator;
@@ -22,7 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AutoRefreshingConfigMap extends ReadOnlyMap {
+
+public final class AutoRefreshingConfigMap extends ReadOnlyMap {
     private static final Logger LOGGER = Logger.getLogger(AutoRefreshingConfigMap.class);
 
     private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.seconds(5l);
