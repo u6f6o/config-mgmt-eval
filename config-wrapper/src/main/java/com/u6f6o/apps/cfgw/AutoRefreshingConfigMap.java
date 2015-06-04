@@ -13,6 +13,7 @@ import com.u6f6o.apps.cfgw.util.TimeSpan;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -26,7 +27,6 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
 
     private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.seconds(5l);
     private static final TimeSpan DEFAULT_REFRESH_PERIOD = TimeSpan.seconds(5l);
-    private static final Map EMPTY_MAP = Maps.newHashMap();
 
     private final AtomicBoolean canRefresh = new AtomicBoolean(true);
     private final ScheduledExecutorService refreshExecutor = Executors.newScheduledThreadPool(2);
@@ -128,7 +128,7 @@ public class AutoRefreshingConfigMap extends ReadOnlyMap {
         } catch (Exception e) {
             LOGGER.info("Unable to fetch configuration", e);
             future.cancel(true);
-            return EMPTY_MAP;
+            return Collections.emptyMap();
         }
     }
 
