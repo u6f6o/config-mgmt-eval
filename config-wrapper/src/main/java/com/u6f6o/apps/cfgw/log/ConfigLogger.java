@@ -1,4 +1,4 @@
-package com.u6f6o.apps.cfgw.logger;
+package com.u6f6o.apps.cfgw.log;
 
 import com.google.common.collect.ImmutableMap;
 

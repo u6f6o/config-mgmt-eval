@@ -1,14 +1,14 @@
 package com.u6f6o.apps.cfgw;
 
 import com.google.common.collect.ImmutableMap;
-import com.u6f6o.apps.cfgw.fetcher.ConfigFetcher;
-import com.u6f6o.apps.cfgw.logger.ConfigLogger;
+import com.u6f6o.apps.cfgw.fetch.ConfigFetcher;
+import com.u6f6o.apps.cfgw.log.ConfigLogger;
 import com.u6f6o.apps.cfgw.common.ApplicationBootstrapError;
 import com.u6f6o.apps.cfgw.common.ReadOnlyMap;
-import com.u6f6o.apps.cfgw.validator.ConfigValidator;
-import com.u6f6o.apps.cfgw.logger.DefaultConfigLogger;
+import com.u6f6o.apps.cfgw.validation.ConfigValidator;
+import com.u6f6o.apps.cfgw.log.DefaultConfigLogger;
 import com.u6f6o.apps.cfgw.common.TimeSpan;
-import com.u6f6o.apps.cfgw.validator.DefaultConfigValidator;
+import com.u6f6o.apps.cfgw.validation.DefaultConfigValidator;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class AutoRefreshingConfigMap extends ReadOnlyMap {
     private static final Logger LOGGER = Logger.getLogger(AutoRefreshingConfigMap.class);
 
-    private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.seconds(5l);
-    private static final TimeSpan DEFAULT_REFRESH_PERIOD = TimeSpan.seconds(5l);
+    private static final TimeSpan DEFAULT_MAX_STARTUP_TIME = TimeSpan.seconds(30l);
+    private static final TimeSpan DEFAULT_REFRESH_PERIOD = TimeSpan.seconds(30l);
 
     private final AtomicBoolean canRefresh = new AtomicBoolean(true);
     private final ScheduledExecutorService refreshExecutor = Executors.newScheduledThreadPool(2);

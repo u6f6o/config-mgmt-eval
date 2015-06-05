@@ -1,7 +1,6 @@
-package com.u6f6o.apps.cfgw.validator;
+package com.u6f6o.apps.cfgw.validation;
 
 import com.google.common.collect.ImmutableMap;
-import com.u6f6o.apps.cfgw.validator.ConfigValidator;
 
 public class DefaultConfigValidator implements ConfigValidator {
     @Override
