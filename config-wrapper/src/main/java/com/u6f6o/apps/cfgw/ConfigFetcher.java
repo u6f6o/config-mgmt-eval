@@ -1,4 +1,4 @@
-package com.u6f6o.apps.cfgw.fetch;
+package com.u6f6o.apps.cfgw;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package com.u6f6o.apps.cfgw.validation;
+package com.u6f6o.apps.cfgw;
 
 import com.google.common.collect.ImmutableMap;
 

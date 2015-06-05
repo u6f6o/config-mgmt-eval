@@ -1,4 +1,4 @@
-package com.u6f6o.apps.cfgw.common;
+package com.u6f6o.apps.cfgw;
 
 import java.util.concurrent.TimeUnit;
 

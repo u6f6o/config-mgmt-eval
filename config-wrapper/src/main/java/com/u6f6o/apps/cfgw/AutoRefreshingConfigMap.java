@@ -1,14 +1,6 @@
 package com.u6f6o.apps.cfgw;
 
 import com.google.common.collect.ImmutableMap;
-import com.u6f6o.apps.cfgw.fetch.ConfigFetcher;
-import com.u6f6o.apps.cfgw.log.ConfigLogger;
-import com.u6f6o.apps.cfgw.common.ApplicationBootstrapError;
-import com.u6f6o.apps.cfgw.common.ReadOnlyMap;
-import com.u6f6o.apps.cfgw.validation.ConfigValidator;
-import com.u6f6o.apps.cfgw.log.DefaultConfigLogger;
-import com.u6f6o.apps.cfgw.common.TimeSpan;
-import com.u6f6o.apps.cfgw.validation.DefaultConfigValidator;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -65,7 +57,7 @@ public final class AutoRefreshingConfigMap extends ReadOnlyMap {
      * Load initial configuration settings during startup. In case it does not work, the application
      * is supposed to stop immediately!
      *
-     * @throws com.u6f6o.apps.cfgw.common.ApplicationBootstrapError in case of timeout or failing validation
+     * @throws ApplicationBootstrapError in case of timeout or failing validation
      */
     private void initializeConfig() {
         ImmutableMap<String, String> initialConfig = ImmutableMap.copyOf(
