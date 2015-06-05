@@ -1,14 +1,14 @@
 package com.u6f6o.apps.cfgw;
 
 import com.google.common.collect.ImmutableMap;
-import com.u6f6o.apps.cfgw.api.ConfigFetcher;
-import com.u6f6o.apps.cfgw.api.ConfigLogger;
-import com.u6f6o.apps.cfgw.api.ConfigValidator;
-import com.u6f6o.apps.cfgw.api.DefaultConfigLogger;
-import com.u6f6o.apps.cfgw.api.DefaultConfigValidator;
-import com.u6f6o.apps.cfgw.api.ReadOnlyMap;
-import com.u6f6o.apps.cfgw.exception.ApplicationBootstrapError;
-import com.u6f6o.apps.cfgw.util.TimeSpan;
+import com.u6f6o.apps.cfgw.fetcher.ConfigFetcher;
+import com.u6f6o.apps.cfgw.logger.ConfigLogger;
+import com.u6f6o.apps.cfgw.common.ApplicationBootstrapError;
+import com.u6f6o.apps.cfgw.common.ReadOnlyMap;
+import com.u6f6o.apps.cfgw.validator.ConfigValidator;
+import com.u6f6o.apps.cfgw.logger.DefaultConfigLogger;
+import com.u6f6o.apps.cfgw.common.TimeSpan;
+import com.u6f6o.apps.cfgw.validator.DefaultConfigValidator;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -65,7 +65,7 @@ public final class AutoRefreshingConfigMap extends ReadOnlyMap {
      * Load initial configuration settings during startup. In case it does not work, the application
      * is supposed to stop immediately!
      *
-     * @throws com.u6f6o.apps.cfgw.exception.ApplicationBootstrapError in case of timeout or failing validation
+     * @throws com.u6f6o.apps.cfgw.common.ApplicationBootstrapError in case of timeout or failing validation
      */
     private void initializeConfig() {
         ImmutableMap<String, String> initialConfig = ImmutableMap.copyOf(

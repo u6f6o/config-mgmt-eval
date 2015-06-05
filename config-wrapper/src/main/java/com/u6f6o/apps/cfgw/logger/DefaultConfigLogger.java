@@ -1,4 +1,4 @@
-package com.u6f6o.apps.cfgw.api;
+package com.u6f6o.apps.cfgw.logger;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;

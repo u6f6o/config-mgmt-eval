@@ -1,4 +1,4 @@
-package com.u6f6o.apps.cfgw.exception;
+package com.u6f6o.apps.cfgw.common;
 
 
 public class ApplicationBootstrapError extends Error {

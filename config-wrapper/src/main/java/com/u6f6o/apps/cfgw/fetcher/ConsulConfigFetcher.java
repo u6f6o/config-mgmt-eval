@@ -1,8 +1,7 @@
-package com.u6f6o.apps.cfgw.provider.consul;
+package com.u6f6o.apps.cfgw.fetcher;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.GetRequest;
-import com.u6f6o.apps.cfgw.api.ConfigFetcher;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
