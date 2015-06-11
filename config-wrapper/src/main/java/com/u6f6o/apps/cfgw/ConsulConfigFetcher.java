@@ -2,6 +2,8 @@ package com.u6f6o.apps.cfgw;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.GetRequest;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,7 +31,7 @@ public class ConsulConfigFetcher implements ConfigFetcher {
                 JSONObject jsonObject = array.getJSONObject(i);
                 String key = jsonObject.getString("Key");
                 String val = jsonObject.get("Value") + "";
-
+                val = StringUtils.newStringUtf8(Base64.decodeBase64(val));
                 result.put(key, val);
             }
             return result;
